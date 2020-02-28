@@ -71,9 +71,29 @@ function createRandomArray(num) {
     return (new Array(num).fill(0)).map((a) => Math.floor(Math.random() * 100));
 }
 
-function runtimeTestFourier()   {
-    for ( let i = 0; i < 10; i++)   {
+function runtimeTestFourier(tests)   {
+    tests = tests || 13;
+    const debug = false;
+    for ( let i = 0; i < tests; i++)   {
         let samples = Math.pow(2, i);
-        // TODO
+        let testArr = createRandomArray(samples);
+        
+        let dftTime = test(dft, testArr, "DFT", debug);
+        let fftTime = test(fft, testArr, "FFT", debug);
+
+        let faster = dftTime > fftTime ? "FFT" : "DFT";
+        console.log("Test with arraySize = " + samples + "\n==> " + faster);
     }
+}
+
+function test(method, testCase, name, debug)   {
+    
+    let startDft = window.performance.now();
+    method(testCase);
+    let endDft = window.performance.now();
+    let diffDft = endDft - startDft;
+    if ( ! debug ) return diffDft;
+    console.log(name);
+    console.log(diffDft + " ms");
+    return diffDft;
 }
