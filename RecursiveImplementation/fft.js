@@ -17,35 +17,27 @@ function dft(signal)  {
         let amp = Math.sqrt(reGes * reGes + imGes * imGes);
         let phase = Math.atan2(imGes, reGes);
         newValues[i] = {amp, phase, reGes, imGes};
-        // if ( i > 0 ) newValues[values.length - i] = sum;
-        // if ( sum > maxValue ) maxValue = sum;
     }
 
     return newValues;
 }
 
 function fft(signal)    {
-    return fftAlg(signal.map((a) => math.complex(a, 0)));
+    return fftAlg(signal.map((a) => math.complex(a, 0)), 0, 1);
 }
 
-function fftAlg(signal)    {
-    let N = signal.length;
-    if ( N <= 1 ) return signal;
+function fftAlg(signal, startIndex, stepSize)    {
+    let N = Math.floor(signal.length / stepSize);
+    if ( startIndex + stepSize >= signal.length ) {
+        return [signal[startIndex]];
+    }
     let M = Math.floor(N / 2);
 
-    let even = new Array(M);
-    let odd = new Array(M);
-
-    // TODO -> übergebe fft startindex und jumpsize
-    for ( let i = 0; i < M; i++)    {
-        even[i] = signal[2 * i];
-        odd[i] = signal[2 * i + 1];
-    }
-
-    let Feven = fftAlg(even);
-    let Fodd = fftAlg(odd);
+    let Feven = fftAlg(signal, startIndex, stepSize * 2);
+    let Fodd = fftAlg(signal, startIndex + stepSize, stepSize * 2);
 
     let bins = new Array(N);
+
     for ( let k = 0; k < M; k++)  {
         let angle = - (2 * Math.PI * k / N);
         let complexExponential = math.complex({r: 1, phi: angle});
@@ -54,8 +46,8 @@ function fftAlg(signal)    {
         bins[k] = Feven[k];
         bins[k] = math.add(bins[k], complexExponential);
 
-        bins[k + N/2] = Feven[k];
-        bins[k + N/2] = math.add(bins[k + N/2], math.complex({re: - complexExponential.re, im: - complexExponential.im}));
+        bins[k + M] = Feven[k];
+        bins[k +M] = math.add(bins[k + M], math.complex({re: - complexExponential.re, im: - complexExponential.im}));
     }
     return bins;
 }
@@ -63,10 +55,7 @@ function fftAlg(signal)    {
 function testFourier(num)  {
     console.log("Test runtime of DFT against FFT");
     num = num || 128;
-    let testArr = new Array(num);
-    for ( let i = 0; i < num; i++)  {
-        testArr[i] = Math.floor(Math.random() * 100);
-    }
+    let testArr = createRandomArray(num);
     console.time("DFT");
     let d = dft(testArr);
     console.timeEnd("DFT");
@@ -76,5 +65,15 @@ function testFourier(num)  {
     let f = fft(testArr);
     console.timeEnd("FFT");
     console.log(f);
+}
 
+function createRandomArray(num) {
+    return (new Array(num).fill(0)).map((a) => Math.floor(Math.random() * 100));
+}
+
+function runtimeTestFourier()   {
+    for ( let i = 0; i < 10; i++)   {
+        let samples = Math.pow(2, i);
+        // TODO
+    }
 }
