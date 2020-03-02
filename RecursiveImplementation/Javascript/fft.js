@@ -4,7 +4,7 @@ function dft(signal)  {
 
     for ( let i = 0; i < signal.length; i++)    {
         let reGes = 0;
-        let imGes = 0;signal
+        let imGes = 0;
         for ( let j = 0; j < signal.length; j++)    {
             let rad = signal[j];
             let phi = - (i * j * omega); 
